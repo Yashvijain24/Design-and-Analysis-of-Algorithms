@@ -1,0 +1,74 @@
+#include <iostream>
+#include <queue>
+#include <unordered_map>
+using namespace std;
+
+// A Tree node
+struct Node {
+    char ch;
+    int freq;
+    Node *left, *right;
+
+    Node(char c, int f) {
+        ch = c;
+        freq = f;
+        left = right = nullptr;
+    }
+};
+
+// For priority queue (min-heap)
+struct compare {
+    bool operator()(Node* l, Node* r) {
+        return l->freq > r->freq;
+    }
+};
+
+// Generate Huffman Codes recursively
+void printCodes(Node* root, string str) {
+    if (!root) return;
+
+    // If it's a leaf node (character node)
+    if (!root->left && !root->right) {
+        cout << root->ch << " : " << str << endl;
+    }
+
+    printCodes(root->left, str + "0");
+    printCodes(root->right, str + "1");
+}
+
+void HuffmanEncoding(char characters[], int freq[], int n) {
+    priority_queue<Node*, vector<Node*>, compare> minHeap;
+
+    // Step 1: Create leaf nodes for each character
+    for (int i = 0; i < n; i++) {
+        minHeap.push(new Node(characters[i], freq[i]));
+    }
+
+    // Step 2: Combine two smallest nodes until one tree remains
+    while (minHeap.size() > 1) {
+        Node *left = minHeap.top(); minHeap.pop();
+        Node *right = minHeap.top(); minHeap.pop();
+
+        Node *top = new Node('$', left->freq + right->freq);
+        top->left = left;
+        top->right = right;
+
+        minHeap.push(top);
+    }
+
+    // Step 3: Print Huffman Codes
+    Node* root = minHeap.top();
+    cout << "\nHuffman Codes are:\n";
+    printCodes(root, "");
+}
+
+// Main Function
+int main() {
+    char characters[] = {'A', 'B', 'C', 'D', 'E', 'F'};
+    int freq[] = {5, 9, 12, 13, 16, 45};
+    int n = sizeof(characters) / sizeof(characters[0]);
+
+    HuffmanEncoding(characters, freq, n);
+
+    return 0;
+}
